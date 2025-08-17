@@ -6,7 +6,7 @@ PUBLISH_OUTPUT_DIR="/burstroy/BSP_Weather"
 SERVICE_NAME="bsp_weather"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 NGINX_CONFIG_FILE="/etc/nginx/sites-available/${SERVICE_NAME}"
-APP_DLL="BSP_Weather.dll"  
+APP_DLL="BSP_Weather.dll"  # Замените на имя вашего основного DLL файла
 DOMAIN_OR_IP="localhost"   # Замените на ваш домен или IP
 
 # 1. Публикация приложения
@@ -23,7 +23,7 @@ echo "Application published to $PUBLISH_OUTPUT_DIR"
 
 # 2. Создание systemd службы
 echo "Creating systemd service..."
-sudo bash -c "cat > $SERVICE_FILE <<EOF
+sudo bash -c "cat > $SERVICE_FILE <<'EOF'
 [Unit]
 Description=BSP Weather .NET Web API Application
 After=network.target
@@ -54,15 +54,16 @@ echo "Service $SERVICE_NAME created and started"
 
 # 3. Создание конфигурации Nginx
 echo "Creating Nginx configuration..."
-sudo bash -c "cat > $NGINX_CONFIG_FILE <<EOF
+sudo bash -c "cat > $NGINX_CONFIG_FILE <<'EOF'
 server {
     listen        80;
     server_name   $DOMAIN_OR_IP;
+
     location / {
         proxy_pass         http://127.0.0.1:5000;
         proxy_http_version 1.1;
         proxy_set_header   Upgrade \$http_upgrade;
-        proxy_set_header   Connection keep-alive;
+        proxy_set_header   Connection \"upgrade\";
         proxy_set_header   Host \$host;
         proxy_cache_bypass \$http_upgrade;
         proxy_set_header   X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -72,22 +73,27 @@ server {
 EOF"
 
 # Активация конфигурации Nginx
-sudo ln -sf $NGINX_CONFIG_FILE /etc/nginx/sites-enabled/
+sudo ln -sf "$NGINX_CONFIG_FILE" "/etc/nginx/sites-enabled/"
 sudo rm -f /etc/nginx/sites-enabled/default
 
 # Проверка и перезагрузка Nginx
-sudo nginx -t && sudo systemctl restart nginx
-
-if [ $? -ne 0 ]; then
+if ! sudo nginx -t; then
     echo "Error: Nginx configuration test failed"
+    echo "Showing Nginx error log for debugging:"
+    sudo tail -n 20 /var/log/nginx/error.log
     exit 1
 fi
+
+sudo systemctl restart nginx
 
 echo "Nginx configuration created and activated"
 
 # 4. Проверка работы
 echo "Checking service status..."
 sudo systemctl status $SERVICE_NAME
+
+echo "Checking Nginx status..."
+sudo systemctl status nginx
 
 echo "Deployment completed successfully!"
 echo "Application should be available at: http://$DOMAIN_OR_IP"
