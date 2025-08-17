@@ -58,7 +58,7 @@ var app = builder.Build();
 Console.WriteLine("Configuring middleware pipeline...");
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BSP_Weather API v1"));
