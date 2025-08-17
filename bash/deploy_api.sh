@@ -7,9 +7,9 @@ LOGS_DIR="$PUBLISH_OUTPUT_DIR/logs"
 SERVICE_NAME="bsp_weather"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 NGINX_CONFIG_FILE="/etc/nginx/sites-available/${SERVICE_NAME}"
-APP_DLL="BSP_Weather.dll"  # Ensure this matches the actual DLL name
-DOMAIN_OR_IP="localhost"   # Replace with your domain or IP
-PORT="5000"               # Default .NET Core port
+APP_DLL="BSP_Weather.dll"
+DOMAIN_OR_IP="localhost"
+PORT="5000"
 
 # Exit on any error
 set -e
@@ -31,9 +31,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Verify DLL exists
+if [ ! -f "$PUBLISH_OUTPUT_DIR/$APP_DLL" ]; then
+    echo "Error: $APP_DLL not found in $PUBLISH_OUTPUT_DIR"
+    exit 1
+fi
+
 echo "Application published to $PUBLISH_OUTPUT_DIR"
 
-# 2. Set permissions for the publish and logs directories
+# 2. Set permissions for publish and logs directories
 echo "Setting permissions for $PUBLISH_OUTPUT_DIR and $LOGS_DIR..."
 sudo chown -R www-data:www-data "$PUBLISH_OUTPUT_DIR"
 sudo chmod -R 755 "$PUBLISH_OUTPUT_DIR"
@@ -69,12 +75,24 @@ sudo systemctl start "$SERVICE_NAME"
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to start $SERVICE_NAME service"
+    sudo journalctl -u "$SERVICE_NAME" -n 50
     exit 1
 fi
 
-echo "Service $SERVICE_NAME created and started"
+# Wait briefly to allow the service to start
+sleep 5
 
-# 4. Create Nginx configuration
+# 4. Verify application is running
+echo "Checking if application is responding on port $PORT..."
+if curl -s http://localhost:$PORT/swagger >/dev/null; then
+    echo "Application is responding at http://localhost:$PORT/swagger"
+else
+    echo "Error: Application is not responding at http://localhost:$PORT/swagger"
+    sudo journalctl -u "$SERVICE_NAME" -n 50
+    exit 1
+fi
+
+# 5. Create Nginx configuration
 echo "Creating Nginx configuration..."
 sudo tee "$NGINX_CONFIG_FILE" > /dev/null <<'NGINX_CONFIG'
 server {
@@ -91,21 +109,10 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-
-    location /swagger {
-        proxy_pass http://localhost:5000/swagger;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
 }
 NGINX_CONFIG
 
-# 5. Activate Nginx configuration
+# 6. Activate Nginx configuration
 sudo ln -sf "$NGINX_CONFIG_FILE" "/etc/nginx/sites-enabled/"
 [ -f "/etc/nginx/sites-enabled/default" ] && sudo rm -f "/etc/nginx/sites-enabled/default"
 
@@ -120,11 +127,32 @@ fi
 sudo systemctl restart nginx
 if [ $? -ne 0 ]; then
     echo "Error: Failed to restart Nginx"
+    sudo tail -n 50 /var/log/nginx/error.log
     exit 1
 fi
 echo "Nginx configuration successfully activated"
 
-# 6. Verify services
+# 7. Verify Nginx is serving the application
+echo "Checking if Swagger is accessible via Nginx..."
+if curl -s http://$DOMAIN_OR_IP/swagger >/dev/null; then
+    echo "Swagger UI is accessible at http://$DOMAIN_OR_IP/swagger"
+else
+    echo "Error: Swagger UI is not accessible at http://$DOMAIN_OR_IP/swagger"
+    sudo tail -n 50 /var/log/nginx/error.log
+    exit 1
+fi
+
+# 8. Verify logs directory
+echo "Checking logs directory: $LOGS_DIR"
+if [ -z "$(ls -A $LOGS_DIR)" ]; then
+    echo "Warning: Logs directory is empty. Check application logs in journalctl:"
+    sudo journalctl -u "$SERVICE_NAME" -n 50
+else
+    echo "Logs found in $LOGS_DIR:"
+    ls -l "$LOGS_DIR"
+fi
+
+# 9. Display service statuses
 echo -e "\nService status:"
 sudo systemctl status "$SERVICE_NAME" --no-pager || true
 
