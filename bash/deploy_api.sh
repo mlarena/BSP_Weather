@@ -2,6 +2,7 @@
 
 # Parameters
 PROJECT_SOLUTION_DIR="/temp_project/BSP_Weather"
+PROJECT_FILE="$PROJECT_SOLUTION_DIR/BSP_Weather.csproj"
 PUBLISH_OUTPUT_DIR="/burstroy/BSP_Weather"
 LOGS_DIR="$PUBLISH_OUTPUT_DIR/logs"
 SERVICE_NAME="bsp_weather"
@@ -22,7 +23,7 @@ if ! command -v dotnet >/dev/null 2>&1; then
     exit 1
 fi
 if ! dpkg -l | grep -q aspnetcore-runtime; then
-    echo "Error: ASP.NET Core runtime is not installed. Install it with: sudo apt-get install -y aspnetcore-runtime-8.0"
+    echo "Error: ASP.NET Core runtime is not installed. Install it with: sudo apt-get install -y aspnetcore-runtime-9.0"
     exit 1
 fi
 
@@ -35,8 +36,13 @@ fi
 mkdir -p "$PUBLISH_OUTPUT_DIR"
 mkdir -p "$LOGS_DIR"
 
+if [ ! -f "$PROJECT_FILE" ]; then
+    echo "Error: Project file $PROJECT_FILE not found"
+    exit 1
+fi
+
 cd "$PROJECT_SOLUTION_DIR" || { echo "Error: Cannot access $PROJECT_SOLUTION_DIR"; exit 1; }
-dotnet publish -c Release -o "$PUBLISH_OUTPUT_DIR"
+dotnet publish "$PROJECT_FILE" -c Release -o "$PUBLISH_OUTPUT_DIR"
 
 if [ $? -ne 0 ]; then
     echo "Error: dotnet publish failed"
@@ -49,13 +55,16 @@ if [ ! -f "$PUBLISH_OUTPUT_DIR/$APP_DLL" ]; then
     exit 1
 fi
 
-# Ensure appsettings.json is copied
-if [ -f "$PROJECT_SOLUTION_DIR/$APPSETTINGS_FILE" ]; then
-    echo "Copying $APPSETTINGS_FILE to $PUBLISH_OUTPUT_DIR"
-    cp "$PROJECT_SOLUTION_DIR/$APPSETTINGS_FILE" "$PUBLISH_OUTPUT_DIR/$APPSETTINGS_FILE"
-else
-    echo "Error: $APPSETTINGS_FILE not found in $PROJECT_SOLUTION_DIR"
-    exit 1
+# Verify appsettings.json exists
+if [ ! -f "$PUBLISH_OUTPUT_DIR/$APPSETTINGS_FILE" ]; then
+    echo "Error: $APPSETTINGS_FILE not found in $PUBLISH_OUTPUT_DIR"
+    if [ -f "$PROJECT_SOLUTION_DIR/$APPSETTINGS_FILE" ]; then
+        echo "Copying $APPSETTINGS_FILE to $PUBLISH_OUTPUT_DIR"
+        cp "$PROJECT_SOLUTION_DIR/$APPSETTINGS_FILE" "$PUBLISH_OUTPUT_DIR/$APPSETTINGS_FILE"
+    else
+        echo "Error: $APPSETTINGS_FILE not found in $PROJECT_SOLUTION_DIR"
+        exit 1
+    fi
 fi
 
 # 3. Set permissions
@@ -69,7 +78,7 @@ sudo chmod 644 "$PUBLISH_OUTPUT_DIR/$APPSETTINGS_FILE"
 echo "Verifying permissions for $LOGS_DIR..."
 ls -ld "$LOGS_DIR"
 echo "Verifying permissions for $APPSETTINGS_FILE..."
-到来
+ls -l "$PUBLISH_OUTPUT_DIR/$APPSETTINGS_FILE"
 
 # 4. Create systemd service
 echo "Creating systemd service..."
@@ -140,7 +149,7 @@ NGINX_CONFIG
 
 # 7. Activate Nginx configuration
 sudo ln -sf "$NGINX_CONFIG_FILE" "/etc/nginx/sites-enabled/"
-[ -f "/etc/lowercase nginx/sites-enabled/default" ] && sudo rm -f "/etc/nginx/sites-enabled/default"
+[ -f "/etc/nginx/sites-enabled/default" ] && sudo rm -f "/etc/nginx/sites-enabled/default"
 
 # Check Nginx configuration
 if ! sudo nginx -t; then
