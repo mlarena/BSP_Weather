@@ -1,0 +1,29 @@
+[2025-08-15 07:47:20.772 +03:00 INF] Application is starting...
+[2025-08-15 07:47:35.020 +03:00 INF] Incoming request: GET /api/Weather/bsp_abcd from ::1, Headers: Accept: */*; Connection: keep-alive; Host: localhost:5100; User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36; Accept-Encoding: gzip, deflate, br, zstd; Accept-Language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7; Referer: http://localhost:5100/swagger/index.html; sec-ch-ua-platform: "Windows"; sec-ch-ua: "Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"; sec-ch-ua-mobile: ?0; Sec-Fetch-Site: same-origin; Sec-Fetch-Mode: cors; Sec-Fetch-Dest: empty
+[2025-08-15 07:47:35.051 +03:00 INF] WeatherController initialized
+[2025-08-15 07:47:35.069 +03:00 INF] Received request for GetCurrentWeather with latitude: 55.7558, longitude: 37.6173
+[2025-08-15 07:47:35.078 +03:00 INF] Request received at 2025-08-15 04:47:35. Details: URL: https://api.gismeteo.net/v3/weather/current/?latitude=55.7558&longitude=37.6173, Client IP: ::1, Latitude: 55.7558, Longitude: 37.6173
+[2025-08-15 07:47:35.079 +03:00 DBG] Sending request to Gismeteo API: https://api.gismeteo.net/v3/weather/current/?latitude=55.7558&longitude=37.6173
+[2025-08-15 07:47:35.307 +03:00 INF] Successful response from https://api.gismeteo.net/v3/weather/current/?latitude=55.7558&longitude=37.6173. Response length: 1072 characters
+[2025-08-15 07:47:35.313 +03:00 INF] Response for /api/Weather/bsp_abcd: Status Code: 200
+[2025-08-15 07:48:24.439 +03:00 INF] Incoming request: GET /api/Weather/bsp_efgh from ::1, Headers: Accept: */*; Connection: keep-alive; Host: localhost:5100; User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36; Accept-Encoding: gzip, deflate, br, zstd; Accept-Language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7; Referer: http://localhost:5100/swagger/index.html; sec-ch-ua-platform: "Windows"; sec-ch-ua: "Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"; sec-ch-ua-mobile: ?0; Sec-Fetch-Site: same-origin; Sec-Fetch-Mode: cors; Sec-Fetch-Dest: empty
+[2025-08-15 07:48:24.447 +03:00 INF] WeatherController initialized
+[2025-08-15 07:48:24.452 +03:00 INF] Received request for GetForecastH1 with latitude: 55.7558, longitude: 37.6173
+[2025-08-15 07:48:24.457 +03:00 INF] Request received at 2025-08-15 04:48:24. Details: URL: https://api.gismeteo.net/v3/weather/forecast/h1/?latitude=55.7558&longitude=37.6173, Client IP: ::1, Latitude: 55.7558, Longitude: 37.6173
+[2025-08-15 07:48:24.460 +03:00 DBG] Sending request to Gismeteo API: https://api.gismeteo.net/v3/weather/forecast/h1/?latitude=55.7558&longitude=37.6173
+[2025-08-15 07:48:24.566 +03:00 INF] Successful response from https://api.gismeteo.net/v3/weather/forecast/h1/?latitude=55.7558&longitude=37.6173. Response length: 129316 characters
+[2025-08-15 07:48:24.577 +03:00 INF] Response for /api/Weather/bsp_efgh: Status Code: 200
+[2025-08-15 07:48:45.483 +03:00 INF] Incoming request: GET /api/Weather/bsp_ijkl from ::1, Headers: Accept: */*; Connection: keep-alive; Host: localhost:5100; User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36; Accept-Encoding: gzip, deflate, br, zstd; Accept-Language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7; Referer: http://localhost:5100/swagger/index.html; sec-ch-ua-platform: "Windows"; sec-ch-ua: "Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"; sec-ch-ua-mobile: ?0; Sec-Fetch-Site: same-origin; Sec-Fetch-Mode: cors; Sec-Fetch-Dest: empty
+[2025-08-15 07:48:45.491 +03:00 INF] WeatherController initialized
+[2025-08-15 07:48:45.494 +03:00 INF] Received request for GetForecastH3 with latitude: 55.7558, longitude: 37.6173
+[2025-08-15 07:48:45.497 +03:00 INF] Request received at 2025-08-15 04:48:45. Details: URL: https://api.gismeteo.net/v3/weather/forecast/h3/?latitude=55.7558&longitude=37.6173, Client IP: ::1, Latitude: 55.7558, Longitude: 37.6173
+[2025-08-15 07:48:45.502 +03:00 DBG] Sending request to Gismeteo API: https://api.gismeteo.net/v3/weather/forecast/h3/?latitude=55.7558&longitude=37.6173
+[2025-08-15 07:48:45.584 +03:00 INF] Successful response from https://api.gismeteo.net/v3/weather/forecast/h3/?latitude=55.7558&longitude=37.6173. Response length: 79668 characters
+[2025-08-15 07:48:45.586 +03:00 INF] Response for /api/Weather/bsp_ijkl: Status Code: 200
+[2025-08-15 07:49:08.773 +03:00 INF] Incoming request: GET /api/Weather/bsp_mnop from ::1, Headers: Accept: */*; Connection: keep-alive; Host: localhost:5100; User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36; Accept-Encoding: gzip, deflate, br, zstd; Accept-Language: ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7; Referer: http://localhost:5100/swagger/index.html; sec-ch-ua-platform: "Windows"; sec-ch-ua: "Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"; sec-ch-ua-mobile: ?0; Sec-Fetch-Site: same-origin; Sec-Fetch-Mode: cors; Sec-Fetch-Dest: empty
+[2025-08-15 07:49:08.776 +03:00 INF] WeatherController initialized
+[2025-08-15 07:49:08.777 +03:00 INF] Received request for GetForecastH6 with latitude: 55.7558, longitude: 37.6173
+[2025-08-15 07:49:08.777 +03:00 INF] Request received at 2025-08-15 04:49:08. Details: URL: https://api.gismeteo.net/v3/weather/forecast/h6/?latitude=55.7558&longitude=37.6173, Client IP: ::1, Latitude: 55.7558, Longitude: 37.6173
+[2025-08-15 07:49:08.778 +03:00 DBG] Sending request to Gismeteo API: https://api.gismeteo.net/v3/weather/forecast/h6/?latitude=55.7558&longitude=37.6173
+[2025-08-15 07:49:08.852 +03:00 INF] Successful response from https://api.gismeteo.net/v3/weather/forecast/h6/?latitude=55.7558&longitude=37.6173. Response length: 39994 characters
+[2025-08-15 07:49:08.853 +03:00 INF] Response for /api/Weather/bsp_mnop: Status Code: 200

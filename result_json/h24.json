@@ -1,0 +1,374 @@
+{
+    "data": [
+        {
+            "astro": {
+                "sun": {
+                    "sunrise": "2025-08-01T04:34:50+03:00",
+                    "sunset": "2025-08-01T20:35:40+03:00",
+                    "polar": null
+                },
+                "moon": {
+                    "next_full": "2025-08-09T10:56:13+03:00",
+                    "previous_full": "2025-07-10T23:37:54+03:00",
+                    "phase": "first_quarter",
+                    "percent_illuminated": 48.7
+                }
+            },
+            "icon": {
+                "icon-weather": "d_c2_r2",
+                "emoji": "☔️️"
+            },
+            "description": "Облачно, дождь",
+            "kind": "Frc",
+            "date": {
+                "UTC": "2025-07-31",
+                "local": "2025-08-01",
+                "unix": 1753995600,
+                "timeZoneOffset": 180
+            },
+            "city": {
+                "name": "Москва",
+                "nameP": "в Москве",
+                "latitude": 55.755798,
+                "longitude": 37.617599
+            },
+            "wind": {
+                "direction": {
+                    "max": {
+                        "degree": 92,
+                        "scale_8": 3
+                    },
+                    "min": {
+                        "degree": 67,
+                        "scale_8": 2
+                    },
+                    "avg": {
+                        "degree": 78,
+                        "scale_8": 3
+                    }
+                },
+                "speed": {
+                    "max": {
+                        "m_s": 1.9
+                    },
+                    "min": {
+                        "m_s": 0.7
+                    },
+                    "avg": {
+                        "m_s": 1.4
+                    }
+                },
+                "gust_speed": {
+                    "max": {
+                        "m_s": 8.4
+                    }
+                }
+            },
+            "temperature": {
+                "air": {
+                    "max": {
+                        "C": 24.2
+                    },
+                    "min": {
+                        "C": 20.5
+                    },
+                    "avg": {
+                        "C": 22.7
+                    }
+                },
+                "comfort": {
+                    "max": {
+                        "C": 24.3
+                    },
+                    "min": {
+                        "C": 20.5
+                    }
+                },
+                "water": {
+                    "max": {
+                        "C": 23.1
+                    },
+                    "min": {
+                        "C": 23
+                    }
+                }
+            },
+            "precipitation": {
+                "type": 1,
+                "type_ext": 1,
+                "amount": 5.2,
+                "intensity": 2
+            },
+            "storm": {
+                "cape": 100.64,
+                "prediction": false
+            },
+            "humidity": {
+                "percent": {
+                    "max": 80,
+                    "min": 58,
+                    "avg": 66.5
+                }
+            },
+            "pressure": {
+                "mm_hg_atm": {
+                    "min": 742,
+                    "max": 744
+                }
+            },
+            "cloudiness": {
+                "percent": 56,
+                "scale_3": 2
+            }
+        },
+        {
+            "astro": {
+                "sun": {
+                    "sunrise": "2025-08-02T04:36:41+03:00",
+                    "sunset": "2025-08-02T20:33:40+03:00",
+                    "polar": null
+                },
+                "moon": {
+                    "next_full": "2025-08-09T10:56:13+03:00",
+                    "previous_full": "2025-07-10T23:37:54+03:00",
+                    "phase": "waxing",
+                    "percent_illuminated": 58.1
+                }
+            },
+            "icon": {
+                "icon-weather": "d_c3_r2_st",
+                "emoji": "⚡️"
+            },
+            "description": "Пасмурно, дождь гроза",
+            "kind": "Frc",
+            "date": {
+                "UTC": "2025-08-01",
+                "local": "2025-08-02",
+                "unix": 1754082000,
+                "timeZoneOffset": 180
+            },
+            "city": {
+                "name": "Москва",
+                "nameP": "в Москве",
+                "latitude": 55.755798,
+                "longitude": 37.617599
+            },
+            "wind": {
+                "direction": {
+                    "max": {
+                        "degree": 289,
+                        "scale_8": 7
+                    },
+                    "min": {
+                        "degree": 34,
+                        "scale_8": 2
+                    },
+                    "avg": {
+                        "degree": 242,
+                        "scale_8": 6
+                    }
+                },
+                "speed": {
+                    "max": {
+                        "m_s": 1
+                    },
+                    "min": {
+                        "m_s": 0
+                    },
+                    "avg": {
+                        "m_s": 0.6
+                    }
+                },
+                "gust_speed": {
+                    "max": {
+                        "m_s": 4
+                    }
+                }
+            },
+            "temperature": {
+                "air": {
+                    "max": {
+                        "C": 23.9
+                    },
+                    "min": {
+                        "C": 20.1
+                    },
+                    "avg": {
+                        "C": 21.6
+                    }
+                },
+                "comfort": {
+                    "max": {
+                        "C": 23.9
+                    },
+                    "min": {
+                        "C": 20.9
+                    }
+                },
+                "water": {
+                    "max": {
+                        "C": 23.3
+                    },
+                    "min": {
+                        "C": 23
+                    }
+                }
+            },
+            "precipitation": {
+                "type": 1,
+                "type_ext": 1,
+                "amount": 13.6,
+                "intensity": 2
+            },
+            "storm": {
+                "cape": 334.91,
+                "prediction": true
+            },
+            "humidity": {
+                "percent": {
+                    "max": 79,
+                    "min": 62,
+                    "avg": 72
+                }
+            },
+            "pressure": {
+                "mm_hg_atm": {
+                    "min": 743,
+                    "max": 748
+                }
+            },
+            "cloudiness": {
+                "percent": 75,
+                "scale_3": 3
+            }
+        },
+        {
+            "astro": {
+                "sun": {
+                    "sunrise": "2025-08-03T04:38:33+03:00",
+                    "sunset": "2025-08-03T20:31:38+03:00",
+                    "polar": null
+                },
+                "moon": {
+                    "next_full": "2025-08-09T10:56:13+03:00",
+                    "previous_full": "2025-07-10T23:37:54+03:00",
+                    "phase": "waxing",
+                    "percent_illuminated": 67.3
+                }
+            },
+            "icon": {
+                "icon-weather": "d_c2",
+                "emoji": "☁️️"
+            },
+            "description": "Облачно",
+            "kind": "Frc",
+            "date": {
+                "UTC": "2025-08-02",
+                "local": "2025-08-03",
+                "unix": 1754168400,
+                "timeZoneOffset": 180
+            },
+            "city": {
+                "name": "Москва",
+                "nameP": "в Москве",
+                "latitude": 55.755798,
+                "longitude": 37.617599
+            },
+            "wind": {
+                "direction": {
+                    "max": {
+                        "degree": 328,
+                        "scale_8": 8
+                    },
+                    "min": {
+                        "degree": 277,
+                        "scale_8": 7
+                    },
+                    "avg": {
+                        "degree": 302,
+                        "scale_8": 8
+                    }
+                },
+                "speed": {
+                    "max": {
+                        "m_s": 1.2
+                    },
+                    "min": {
+                        "m_s": 0
+                    },
+                    "avg": {
+                        "m_s": 0.9
+                    }
+                },
+                "gust_speed": {
+                    "max": {
+                        "m_s": 4.8
+                    }
+                }
+            },
+            "temperature": {
+                "air": {
+                    "max": {
+                        "C": 27.7
+                    },
+                    "min": {
+                        "C": 18.4
+                    },
+                    "avg": {
+                        "C": 22.9
+                    }
+                },
+                "comfort": {
+                    "max": {
+                        "C": 27.7
+                    },
+                    "min": {
+                        "C": 18.4
+                    }
+                },
+                "water": {
+                    "max": {
+                        "C": 23.2
+                    },
+                    "min": {
+                        "C": 22.7
+                    }
+                }
+            },
+            "precipitation": {
+                "type": 0,
+                "type_ext": 0,
+                "amount": 0,
+                "intensity": 0
+            },
+            "storm": {
+                "cape": 90.66,
+                "prediction": false
+            },
+            "humidity": {
+                "percent": {
+                    "max": 82,
+                    "min": 40,
+                    "avg": 61.1
+                }
+            },
+            "pressure": {
+                "mm_hg_atm": {
+                    "min": 749,
+                    "max": 751
+                }
+            },
+            "cloudiness": {
+                "percent": 49,
+                "scale_3": 2
+            }
+        }
+    ],
+    "jsonapi": {
+        "version": "3.5.1"
+    },
+    "meta": {
+        "status": true,
+        "status_code": 200
+    }
+}

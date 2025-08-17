@@ -1,0 +1,142 @@
+<div id="weather-info" class="bsp-meteo-weatherinfo">
+    <div class="bsp-meteo-card mt-4">
+        <div class="bsp-meteo-header">
+            <div>
+                <h2>Москва</h2>
+                <p class="bsp-meteo-date">31 июля 2025, 12:00</p>
+            </div>
+            <div class="bsp-meteo-emoji">🌤</div>
+        </div>
+        <div class="bsp-meteo-main">
+            <p class="bsp-meteo-temperature">27.5°C</p>
+            <p class="bsp-meteo-description">Малооблачно</p>
+            <p class="bsp-meteo-feelslike">Ощущается как: 27.5°C</p>
+        </div>
+        <div class="bsp-meteo-details">
+            <div>
+                <p class="bsp-meteo-label">Ветер</p>
+                <p class="bsp-meteo-value">1.4 м/с, ВЮВ (106°)</p>
+                <p class="bsp-meteo-subvalue">Порывы до 5.4 м/с</p>
+            </div>
+            <div>
+                <p class="bsp-meteo-label">Влажность</p>
+                <p class="bsp-meteo-value">45%</p>
+                <p class="bsp-meteo-subvalue">Точка росы: 14.7°C</p>
+            </div>
+            <div>
+                <p class="bsp-meteo-label">Давление</p>
+                <p class="bsp-meteo-value">745 мм рт. ст.</p>
+            </div>
+            <div>
+                <p class="bsp-meteo-label">Видимость</p>
+                <p class="bsp-meteo-value">24.1 км</p>
+            </div>
+        </div>
+        <div class="bsp-meteo-astro">
+            <p>Восход: 04:32</p>
+            <p>Закат: 20:37</p>
+        </div>
+    </div>
+</div>
+
+<style>
+.bsp-meteo-weatherinfo .bsp-meteo-card {
+    background: #ffffff;
+    color: #1f2937;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    max-width: 400px;
+    margin: 16px auto;
+    transition: transform 0.3s ease;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-card:hover {
+    transform: translateY(-5px);
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bsp-meteo-weatherinfo h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-date {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-emoji {
+    font-size: 48px;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-main {
+    margin-top: 16px;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-temperature {
+    font-size: 36px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-description {
+    font-size: 18px;
+    color: #4b5563;
+    margin: 4px 0 0;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-feelslike {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 4px 0 0;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-label {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-value {
+    font-size: 16px;
+    font-weight: 500;
+    margin: 4px 0 0;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-subvalue {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 4px 0 0;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-astro {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.bsp-meteo-weatherinfo .bsp-meteo-astro p {
+    margin: 0;
+}
+
+.bsp-meteo-weatherinfo p {
+    margin: 0;
+}
+</style>

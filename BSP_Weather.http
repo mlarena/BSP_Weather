@@ -1,0 +1,6 @@
+@BSP_Weather_HostAddress = http://localhost:5268
+
+GET {{BSP_Weather_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

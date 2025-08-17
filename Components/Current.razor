@@ -1,0 +1,787 @@
+@page "/weather"
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Configuration
+
+@inject HttpClient Http
+@inject IConfiguration Configuration
+
+<div class="weather-container">
+    <div class="select-container">
+        <select @onchange="OnRegionSelected" class="form-select custom-select">
+            <option value="">Выберите регион</option>
+            @foreach (var region in regions.Regions)
+            {
+                <option value="@region.RegionName">@region.RegionName - @region.Center</option>
+            }
+        </select>
+
+        @if (selectedRegion != null && selectedRegion.Cities != null && selectedRegion.Cities.Any())
+        {
+            <select @onchange="OnCitySelected" class="form-select custom-select mt-2">
+                <option value="@selectedRegion.Center">@selectedRegion.Center (центр)</option>
+                @foreach (var city in selectedRegion.Cities)
+                {
+                    <option value="@city.CityName">@city.CityName</option>
+                }
+            </select>
+        }
+    </div>
+
+    @if (weatherData != null)
+    {
+        <div id="weather-info" class="bsp-meteo-weatherinfo">
+            <div class="bsp-meteo-card mt-4">
+                <div class="bsp-meteo-header">
+                    <div>
+                        <h2>@weatherData.Data.City.Name</h2>
+                        <p class="bsp-meteo-date">@weatherData.Data.Date.Local.ToString("d MMMM yyyy, HH:mm", new System.Globalization.CultureInfo("ru-RU"))</p>
+                    </div>
+                    <div class="bsp-meteo-emoji">@weatherData.Data.Icon.Emoji</div>
+                </div>
+                <div class="bsp-meteo-main">
+                    <p class="bsp-meteo-temperature">@weatherData.Data.Temperature.Air.C°C</p>
+                    <p class="bsp-meteo-description">@weatherData.Data.Description</p>
+                    <p class="bsp-meteo-feelslike">Ощущается как: @weatherData.Data.Temperature.Comfort.C°C</p>
+                    <p class="bsp-meteo-water-temp">Температура воды: @weatherData.Data.Temperature.Water.C°C</p>
+                </div>
+                <div class="bsp-meteo-details">
+                    <div>
+                        <p class="bsp-meteo-label">Ветер</p>
+                        <p class="bsp-meteo-value">@weatherData.Data.Wind.Speed.M_s м/с, @GetWindDirection(weatherData.Data.Wind.Direction.Degree) (@weatherData.Data.Wind.Direction.Degree°)</p>
+                        <p class="bsp-meteo-subvalue">Порывы до @weatherData.Data.Wind.Gust_speed.M_s м/с</p>
+                        <p class="bsp-meteo-subvalue">Альтернативное направление: @(weatherData.Data.Wind.Alternate_direction ? "Да" : "Нет")</p>
+                    </div>
+                    <div>
+                        <p class="bsp-meteo-label">Влажность</p>
+                        <p class="bsp-meteo-value">@weatherData.Data.Humidity.Percent%</p>
+                        <p class="bsp-meteo-subvalue">Точка росы: @weatherData.Data.Humidity.Dew_point.C°C</p>
+                    </div>
+                    <div>
+                        <p class="bsp-meteo-label">Давление</p>
+                        <p class="bsp-meteo-value">@weatherData.Data.Pressure.Mm_hg_atm мм рт. ст.</p>
+                    </div>
+                    <div>
+                        <p class="bsp-meteo-label">Видимость</p>
+                        <p class="bsp-meteo-value">@(weatherData.Data.Visibility.Horizontal.M.HasValue ? $"{weatherData.Data.Visibility.Horizontal.M.Value / 1000.0:F1} км" : "Недоступно")</p>
+                    </div>
+                    <div>
+                        <p class="bsp-meteo-label">Осадки</p>
+                        <p class="bsp-meteo-value">Тип: @GetPrecipitationType(weatherData.Data.Precipitation.Type)</p>
+                        <p class="bsp-meteo-subvalue">Количество: @weatherData.Data.Precipitation.Amount мм</p>
+                        <p class="bsp-meteo-subvalue">Интенсивность: @GetPrecipitationIntensity(weatherData.Data.Precipitation.Intensity)</p>
+                        <p class="bsp-meteo-subvalue">Продолжительность: @weatherData.Data.Precipitation.Duration ч</p>
+                    </div>
+                    <div>
+                        <p class="bsp-meteo-label">Облачность</p>
+                        <p class="bsp-meteo-value">@weatherData.Data.Cloudiness.Percent%</p>
+                        <p class="bsp-meteo-subvalue">Уровень: @GetCloudinessScale(weatherData.Data.Cloudiness.Scale_3)</p>
+                    </div>
+                    <div>
+                        <p class="bsp-meteo-label">Шторм</p>
+                        <p class="bsp-meteo-value">CAPE: @weatherData.Data.Storm.Cape</p>
+                        <p class="bsp-meteo-subvalue">Вероятность: @(weatherData.Data.Storm.Prediction ? "Да" : "Нет")</p>
+                    </div>
+                </div>
+                <div class="bsp-meteo-astro">
+                    <p>Восход: @weatherData.Data.Astro.Sun.Sunrise.ToString("HH:mm")</p>
+                    <p>Закат: @weatherData.Data.Astro.Sun.Sunset.ToString("HH:mm")</p>
+                    @if (weatherData.Data.Astro.Sun.Polar != null)
+                    {
+                        <p>Полярный статус: @weatherData.Data.Astro.Sun.Polar</p>
+                    }
+                </div>
+                <div class="bsp-meteo-moon">
+                    <p>Фаза луны: @weatherData.Data.Astro.Moon.Phase</p>
+                    <p>Освещённость: @weatherData.Data.Astro.Moon.Percent_illuminated%</p>
+                    <p>След. полнолуние: @weatherData.Data.Astro.Moon.Next_full.ToString("d MMMM yyyy, HH:mm", new System.Globalization.CultureInfo("ru-RU"))</p>
+                    <p>Пред. полнолуние: @weatherData.Data.Astro.Moon.Previous_full.ToString("d MMMM yyyy, HH:mm", new System.Globalization.CultureInfo("ru-RU"))</p>
+                </div>
+            </div>
+        </div>
+    }
+    else if (errorMessage != null)
+    {
+        <p>Error: @errorMessage</p>
+    }
+   </div>
+
+@code {
+    private WeatherResponse weatherData;
+    private string errorMessage;
+    private Region selectedRegion;
+    private string selectedCity;
+
+    private RegionsData regions = new RegionsData
+    {
+        Regions = new List<Region>
+        {
+            new Region { RegionName = "Республика Адыгея", Center = "Майкоп", Coordinates = new Coordinates { Latitude = 44.6044, Longitude = 40.1061 } },
+            new Region { RegionName = "Республика Башкортостан", Center = "Уфа", Coordinates = new Coordinates { Latitude = 54.7351, Longitude = 55.9587 } },
+            new Region { RegionName = "Республика Бурятия", Center = "Улан-Удэ", Coordinates = new Coordinates { Latitude = 51.8344, Longitude = 107.5848 } },
+            new Region { RegionName = "Республика Алтай", Center = "Горно-Алтайск", Coordinates = new Coordinates { Latitude = 51.9577, Longitude = 85.9744 } },
+            new Region { RegionName = "Республика Дагестан", Center = "Махачкала", Coordinates = new Coordinates { Latitude = 42.9833, Longitude = 47.5056 } },
+            new Region { RegionName = "Республика Ингушетия", Center = "Магас", Coordinates = new Coordinates { Latitude = 43.1667, Longitude = 44.8000 } },
+            new Region { RegionName = "Кабардино-Балкарская Республика", Center = "Нальчик", Coordinates = new Coordinates { Latitude = 43.4858, Longitude = 43.6106 } },
+            new Region { RegionName = "Республика Калмыкия", Center = "Элиста", Coordinates = new Coordinates { Latitude = 46.3000, Longitude = 44.2667 } },
+            new Region { RegionName = "Карачаево-Черкесская Республика", Center = "Черкесск", Coordinates = new Coordinates { Latitude = 44.2200, Longitude = 42.0500 } },
+            new Region { RegionName = "Республика Карелия", Center = "Петрозаводск", Coordinates = new Coordinates { Latitude = 61.7833, Longitude = 34.3500 } },
+            new Region { RegionName = "Республика Коми", Center = "Сыктывкар", Coordinates = new Coordinates { Latitude = 61.6667, Longitude = 50.8167 } },
+            new Region { RegionName = "Республика Крым", Center = "Симферополь", Coordinates = new Coordinates { Latitude = 44.9500, Longitude = 34.1000 } },
+            new Region { RegionName = "Республика Марий Эл", Center = "Йошкар-Ола", Coordinates = new Coordinates { Latitude = 56.6333, Longitude = 47.8833 } },
+            new Region { RegionName = "Республика Мордовия", Center = "Саранск", Coordinates = new Coordinates { Latitude = 54.1833, Longitude = 45.1667 } },
+            new Region { RegionName = "Республика Саха (Якутия)", Center = "Якутск", Coordinates = new Coordinates { Latitude = 62.0275, Longitude = 129.6825 } },
+            new Region { RegionName = "Республика Северная Осетия - Алания", Center = "Владикавказ", Coordinates = new Coordinates { Latitude = 43.0333, Longitude = 44.6667 } },
+            new Region { RegionName = "Республика Татарстан", Center = "Казань", Coordinates = new Coordinates { Latitude = 55.7887, Longitude = 49.1221 } },
+            new Region { RegionName = "Республика Тыва", Center = "Кызыл", Coordinates = new Coordinates { Latitude = 51.7200, Longitude = 94.4400 } },
+            new Region {
+                RegionName = "Удмуртская Республика",
+                Center = "Ижевск",
+                Coordinates = new Coordinates { Latitude = 56.8500, Longitude = 53.2000 },
+                Cities = new List<City>
+                {
+                    new City { CityName = "Ижевск", Coordinates = new Coordinates { Latitude = 56.8500, Longitude = 53.2000 } },
+                    new City { CityName = "Сарапул", Coordinates = new Coordinates { Latitude = 56.4667, Longitude = 53.7833 } },
+                    new City { CityName = "Воткинск", Coordinates = new Coordinates { Latitude = 57.0667, Longitude = 53.9833 } },
+                    new City { CityName = "Глазов", Coordinates = new Coordinates { Latitude = 58.1333, Longitude = 52.6667 } },
+                    new City { CityName = "Можга", Coordinates = new Coordinates { Latitude = 56.4500, Longitude = 52.2167 } },
+                    new City { CityName = "Камбарка", Coordinates = new Coordinates { Latitude = 56.0167, Longitude = 54.1500 } }
+                }
+            },
+            new Region { RegionName = "Республика Хакасия", Center = "Абакан", Coordinates = new Coordinates { Latitude = 53.7167, Longitude = 91.4167 } },
+            new Region { RegionName = "Чеченская Республика", Center = "Грозный", Coordinates = new Coordinates { Latitude = 43.3167, Longitude = 45.6833 } },
+            new Region { RegionName = "Чувашская Республика", Center = "Чебоксары", Coordinates = new Coordinates { Latitude = 56.1333, Longitude = 47.2500 } },
+            new Region { RegionName = "Алтайский край", Center = "Барнаул", Coordinates = new Coordinates { Latitude = 53.3547, Longitude = 83.7696 } },
+            new Region { RegionName = "Забайкальский край", Center = "Чита", Coordinates = new Coordinates { Latitude = 52.0333, Longitude = 113.5000 } },
+            new Region { RegionName = "Камчатский край", Center = "Петропавловск-Камчатский", Coordinates = new Coordinates { Latitude = 53.0333, Longitude = 158.6500 } },
+            new Region { RegionName = "Краснодарский край", Center = "Краснодар", Coordinates = new Coordinates { Latitude = 45.0333, Longitude = 38.9667 } },
+            new Region { RegionName = "Красноярский край", Center = "Красноярск", Coordinates = new Coordinates { Latitude = 56.0153, Longitude = 92.8932 } },
+            new Region { RegionName = "Пермский край", Center = "Пермь", Coordinates = new Coordinates { Latitude = 58.0100, Longitude = 56.2500 } },
+            new Region { RegionName = "Приморский край", Center = "Владивосток", Coordinates = new Coordinates { Latitude = 43.1167, Longitude = 131.9000 } },
+            new Region { RegionName = "Ставропольский край", Center = "Ставрополь", Coordinates = new Coordinates { Latitude = 45.0444, Longitude = 41.9722 } },
+            new Region { RegionName = "Хабаровский край", Center = "Хабаровск", Coordinates = new Coordinates { Latitude = 48.4833, Longitude = 135.0667 } },
+            new Region { RegionName = "Амурская область", Center = "Благовещенск", Coordinates = new Coordinates { Latitude = 50.2833, Longitude = 127.5333 } },
+            new Region { RegionName = "Архангельская область", Center = "Архангельск", Coordinates = new Coordinates { Latitude = 64.5393, Longitude = 40.5153 } },
+            new Region { RegionName = "Астраханская область", Center = "Астрахань", Coordinates = new Coordinates { Latitude = 46.3495, Longitude = 48.0348 } },
+            new Region { RegionName = "Белгородская область", Center = "Белгород", Coordinates = new Coordinates { Latitude = 50.6000, Longitude = 36.5833 } },
+            new Region { RegionName = "Брянская область", Center = "Брянск", Coordinates = new Coordinates { Latitude = 53.2500, Longitude = 34.3667 } },
+            new Region { RegionName = "Владимирская область", Center = "Владимир", Coordinates = new Coordinates { Latitude = 56.1333, Longitude = 40.4000 } },
+            new Region { RegionName = "Волгоградская область", Center = "Волгоград", Coordinates = new Coordinates { Latitude = 48.7083, Longitude = 44.5133 } },
+            new Region { RegionName = "Вологодская область", Center = "Вологда", Coordinates = new Coordinates { Latitude = 59.2200, Longitude = 39.8900 } },
+            new Region { RegionName = "Воронежская область", Center = "Воронеж", Coordinates = new Coordinates { Latitude = 51.6667, Longitude = 39.2000 } },
+            new Region { RegionName = "Ивановская область", Center = "Иваново", Coordinates = new Coordinates { Latitude = 57.0000, Longitude = 40.9667 } },
+            new Region { RegionName = "Иркутская область", Center = "Иркутск", Coordinates = new Coordinates { Latitude = 52.2833, Longitude = 104.2833 } },
+            new Region { RegionName = "Калининградская область", Center = "Калининград", Coordinates = new Coordinates { Latitude = 54.7100, Longitude = 20.5100 } },
+            new Region { RegionName = "Калужская область", Center = "Калуга", Coordinates = new Coordinates { Latitude = 54.5250, Longitude = 36.2667 } },
+            new Region { RegionName = "Камчатская область", Center = "Петропавловск-Камчатский", Coordinates = new Coordinates { Latitude = 53.0333, Longitude = 158.6500 } },
+            new Region { RegionName = "Кемеровская область", Center = "Кемерово", Coordinates = new Coordinates { Latitude = 55.3333, Longitude = 86.0833 } },
+            new Region { RegionName = "Кировская область", Center = "Киров", Coordinates = new Coordinates { Latitude = 58.6000, Longitude = 49.6500 } },
+            new Region { RegionName = "Костромская область", Center = "Кострома", Coordinates = new Coordinates { Latitude = 57.7667, Longitude = 40.9167 } },
+            new Region { RegionName = "Курганская область", Center = "Курган", Coordinates = new Coordinates { Latitude = 55.4500, Longitude = 65.3333 } },
+            new Region { RegionName = "Курская область", Center = "Курск", Coordinates = new Coordinates { Latitude = 51.7333, Longitude = 36.1833 } },
+            new Region { RegionName = "Ленинградская область", Center = "Санкт-Петербург", Coordinates = new Coordinates { Latitude = 59.9343, Longitude = 30.3351 } },
+            new Region { RegionName = "Липецкая область", Center = "Липецк", Coordinates = new Coordinates { Latitude = 52.6000, Longitude = 39.6000 } },
+            new Region { RegionName = "Магаданская область", Center = "Магадан", Coordinates = new Coordinates { Latitude = 59.5667, Longitude = 150.8000 } },
+            new Region { RegionName = "Московская область", Center = "Москва", Coordinates = new Coordinates { Latitude = 55.7558, Longitude = 37.6173 } },
+            new Region { RegionName = "Мурманская область", Center = "Мурманск", Coordinates = new Coordinates { Latitude = 68.9667, Longitude = 33.0833 } },
+            new Region {
+                RegionName = "Нижегородская область",
+                Center = "Нижний Новгород",
+                Coordinates = new Coordinates { Latitude = 56.3269, Longitude = 44.0020 },
+                Cities = new List<City>
+                {
+                    new City { CityName = "Дзержинск", Coordinates = new Coordinates { Latitude = 56.2448, Longitude = 43.4533 } },
+                    new City { CityName = "Арзамас", Coordinates = new Coordinates { Latitude = 55.3961, Longitude = 43.8417 } },
+                    new City { CityName = "Бор", Coordinates = new Coordinates { Latitude = 56.3500, Longitude = 44.0833 } },
+                    new City { CityName = "Саров", Coordinates = new Coordinates { Latitude = 54.9311, Longitude = 43.3167 } },
+                    new City { CityName = "Павлово", Coordinates = new Coordinates { Latitude = 55.9667, Longitude = 43.0833 } },
+                    new City { CityName = "Выкса", Coordinates = new Coordinates { Latitude = 55.3222, Longitude = 42.1750 } },
+                    new City { CityName = "Балахна", Coordinates = new Coordinates { Latitude = 56.4833, Longitude = 43.5667 } },
+                    new City { CityName = "Кстово", Coordinates = new Coordinates { Latitude = 56.1417, Longitude = 44.1917 } },
+                    new City { CityName = "Богородск", Coordinates = new Coordinates { Latitude = 56.1000, Longitude = 43.5167 } }
+                }
+            },
+            new Region { RegionName = "Новгородская область", Center = "Великий Новгород", Coordinates = new Coordinates { Latitude = 58.5222, Longitude = 31.2689 } },
+            new Region { RegionName = "Новосибирская область", Center = "Новосибирск", Coordinates = new Coordinates { Latitude = 55.0084, Longitude = 82.9357 } },
+            new Region { RegionName = "Омская область", Center = "Омск", Coordinates = new Coordinates { Latitude = 54.9833, Longitude = 73.3667 } },
+            new Region { RegionName = "Оренбургская область", Center = "Оренбург", Coordinates = new Coordinates { Latitude = 51.7667, Longitude = 55.0964 } },
+            new Region { RegionName = "Орловская область", Center = "Орёл", Coordinates = new Coordinates { Latitude = 52.9667, Longitude = 36.0667 } },
+            new Region { RegionName = "Пензенская область", Center = "Пенза", Coordinates = new Coordinates { Latitude = 53.2000, Longitude = 45.0000 } },
+            new Region { RegionName = "Псковская область", Center = "Псков", Coordinates = new Coordinates { Latitude = 57.8167, Longitude = 28.3333 } },
+            new Region { RegionName = "Ростовская область", Center = "Ростов-на-Дону", Coordinates = new Coordinates { Latitude = 47.2333, Longitude = 39.7000 } },
+            new Region
+            {
+                RegionName = "Рязанская область",
+                Center = "Рязань",
+                Coordinates = new Coordinates { Latitude = 54.6267, Longitude = 39.7333 },
+                Cities = new List<City>
+                {
+                    new City { CityName = "Касимов", Coordinates = new Coordinates { Latitude = 55.1554, Longitude = 41.3894 } },
+                    new City { CityName = "Скопин", Coordinates = new Coordinates { Latitude = 54.0000, Longitude = 39.5500 } },
+                    new City { CityName = "Сасово", Coordinates = new Coordinates { Latitude = 54.3500, Longitude = 41.9000 } },
+                    new City { CityName = "Ряжск", Coordinates = new Coordinates { Latitude = 53.7000, Longitude = 40.0833 } },
+                    new City { CityName = "Рыбное", Coordinates = new Coordinates { Latitude = 54.7333, Longitude = 39.5167 } },
+                    new City { CityName = "Новомичуринск", Coordinates = new Coordinates { Latitude = 54.0667, Longitude = 40.1000 } },
+                    new City { CityName = "Кораблино", Coordinates = new Coordinates { Latitude = 53.8833, Longitude = 40.0167 } },
+                    new City { CityName = "Михайлов", Coordinates = new Coordinates { Latitude = 54.2167, Longitude = 39.1500 } },
+                    new City { CityName = "Спасск-Рязанский", Coordinates = new Coordinates { Latitude = 54.4000, Longitude = 40.3833 } }
+                }
+            },
+            new Region { RegionName = "Самарская область", Center = "Самара", Coordinates = new Coordinates { Latitude = 53.2000, Longitude = 50.1500 } },
+            new Region { RegionName = "Саратовская область", Center = "Саратов", Coordinates = new Coordinates { Latitude = 51.5333, Longitude = 46.0000 } },
+            new Region { RegionName = "Сахалинская область", Center = "Южно-Сахалинск", Coordinates = new Coordinates { Latitude = 46.9667, Longitude = 142.7333 } },
+            new Region { RegionName = "Свердловская область", Center = "Екатеринбург", Coordinates = new Coordinates { Latitude = 56.8333, Longitude = 60.6000 } },
+            new Region { RegionName = "Смоленская область", Center = "Смоленск", Coordinates = new Coordinates { Latitude = 54.7833, Longitude = 32.0500 } },
+            new Region { RegionName = "Тамбовская область", Center = "Тамбов", Coordinates = new Coordinates { Latitude = 52.7333, Longitude = 41.4333 } },
+            new Region { RegionName = "Тверская область", Center = "Тверь", Coordinates = new Coordinates { Latitude = 56.8583, Longitude = 35.9000 } },
+            new Region { RegionName = "Томская область", Center = "Томск", Coordinates = new Coordinates { Latitude = 56.4833, Longitude = 84.9667 } },
+            new Region {
+                RegionName = "Тульская область",
+                Center = "Тула",
+                Coordinates = new Coordinates { Latitude = 54.1833, Longitude = 37.6167 },
+                Cities = new List<City>
+                {
+                    new City { CityName = "Новомосковск", Coordinates = new Coordinates { Latitude = 54.0097, Longitude = 38.2886 } },
+                    new City { CityName = "Алексин", Coordinates = new Coordinates { Latitude = 54.5083, Longitude = 37.0611 } },
+                    new City { CityName = "Щёкино", Coordinates = new Coordinates { Latitude = 54.0000, Longitude = 37.5000 } },
+                    new City { CityName = "Донской", Coordinates = new Coordinates { Latitude = 53.9000, Longitude = 38.3333 } },
+                    new City { CityName = "Ефремов", Coordinates = new Coordinates { Latitude = 53.1444, Longitude = 38.0764 } },
+                    new City { CityName = "Кимовск", Coordinates = new Coordinates { Latitude = 53.9667, Longitude = 38.5333 } },
+                    new City { CityName = "Узловая", Coordinates = new Coordinates { Latitude = 53.9833, Longitude = 38.1500 } }
+                }
+            },
+            new Region { RegionName = "Тюменская область", Center = "Тюмень", Coordinates = new Coordinates { Latitude = 57.1500, Longitude = 65.5333 } },
+            new Region { RegionName = "Ульяновская область", Center = "Ульяновск", Coordinates = new Coordinates { Latitude = 54.3333, Longitude = 48.4000 } },
+            new Region { RegionName = "Челябинская область", Center = "Челябинск", Coordinates = new Coordinates { Latitude = 55.1667, Longitude = 61.4333 } },
+            new Region { RegionName = "Ярославская область", Center = "Ярославль", Coordinates = new Coordinates { Latitude = 57.6267, Longitude = 39.8900 } },
+            new Region { RegionName = "Москва", Center = "Москва", Coordinates = new Coordinates { Latitude = 55.7558, Longitude = 37.6173 } },
+            new Region { RegionName = "Санкт-Петербург", Center = "Санкт-Петербург", Coordinates = new Coordinates { Latitude = 59.9343, Longitude = 30.3351 } },
+            new Region { RegionName = "Севастополь", Center = "Севастополь", Coordinates = new Coordinates { Latitude = 44.6000, Longitude = 33.5333 } },
+            new Region { RegionName = "Еврейская автономная область", Center = "Биробиджан", Coordinates = new Coordinates { Latitude = 48.7500, Longitude = 132.9333 } },
+            new Region { RegionName = "Ненецкий автономный округ", Center = "Нарьян-Мар", Coordinates = new Coordinates { Latitude = 67.6333, Longitude = 53.0000 } },
+            new Region { RegionName = "Ханты-Мансийский автономный округ", Center = "Ханты-Мансийск", Coordinates = new Coordinates { Latitude = 61.0000, Longitude = 69.0000 } },
+            new Region { RegionName = "Чукотский автономный округ", Center = "Анадырь", Coordinates = new Coordinates { Latitude = 64.7333, Longitude = 177.5000 } },
+            new Region { RegionName = "Ямало-Ненецкий автономный округ", Center = "Салехард", Coordinates = new Coordinates { Latitude = 66.5333, Longitude = 66.6167 } }
+        }
+    };
+
+    private async Task GetWeather()
+    {
+        try
+        {
+            var baseUrl = Configuration.GetSection("AppSettings")["BSPWeatherURL"];
+            if (string.IsNullOrEmpty(baseUrl))
+            {
+                throw new InvalidOperationException("BSPWeatherURL is not configured in appsettings.json");
+            }
+
+            Coordinates coords;
+            if (selectedCity == selectedRegion.Center)
+            {
+                coords = selectedRegion.Coordinates;
+            }
+            else
+            {
+                var city = selectedRegion.Cities?.FirstOrDefault(c => c.CityName == selectedCity);
+                coords = city?.Coordinates ?? selectedRegion.Coordinates;
+            }
+
+            var url = $"{baseUrl}/bsp_abcd?latitude={coords.Latitude}&longitude={coords.Longitude}";
+            var response = await Http.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                weatherData = await response.Content.ReadFromJsonAsync<WeatherResponse>();
+                errorMessage = null;
+            }
+            else
+            {
+                errorMessage = $"Error: {response.StatusCode} - {response.ReasonPhrase}";
+                weatherData = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            weatherData = null;
+        }
+        StateHasChanged();
+    }
+
+    private void OnRegionSelected(ChangeEventArgs e)
+    {
+        var regionName = e.Value.ToString();
+        selectedRegion = regions.Regions.FirstOrDefault(r => r.RegionName == regionName);
+        if (selectedRegion != null)
+        {
+            selectedCity = selectedRegion.Center;
+            GetWeather();
+        }
+    }
+
+    private void OnCitySelected(ChangeEventArgs e)
+    {
+        selectedCity = e.Value.ToString();
+        GetWeather();
+    }
+
+    private string GetWindDirection(int degree)
+    {
+        string[] directions = { "С", "СВ", "В", "ЮВ", "Ю", "ЮЗ", "З", "СЗ" };
+        int index = (int)Math.Round(degree / 45.0) % 8;
+        return directions[index];
+    }
+
+    private string GetPrecipitationType(int type)
+    {
+        return type switch
+        {
+            1 => "Дождь",
+            _ => "Неизвестно"
+        };
+    }
+
+    private string GetPrecipitationIntensity(int intensity)
+    {
+        return intensity switch
+        {
+            2 => "Умеренная",
+            _ => "Неизвестно"
+        };
+    }
+
+    private string GetCloudinessScale(int scale)
+    {
+        return scale switch
+        {
+            3 => "Полная",
+            _ => "Неизвестно"
+        };
+    }
+
+    public class RegionsData
+    {
+        public List<Region> Regions { get; set; }
+    }
+
+    public class Region
+    {
+        [JsonPropertyName("Region")]
+        public string RegionName { get; set; }
+
+        [JsonPropertyName("Center")]
+        public string Center { get; set; }
+
+        [JsonPropertyName("Coordinates")]
+        public Coordinates Coordinates { get; set; }
+
+        [JsonPropertyName("Cities")]
+        public List<City> Cities { get; set; }
+    }
+
+    public class City
+    {
+        [JsonPropertyName("City")]
+        public string CityName { get; set; }
+
+        [JsonPropertyName("Coordinates")]
+        public Coordinates Coordinates { get; set; }
+    }
+
+    public class Coordinates
+    {
+        [JsonPropertyName("Latitude")]
+        public double Latitude { get; set; }
+
+        [JsonPropertyName("Longitude")]
+        public double Longitude { get; set; }
+    }
+
+    public class WeatherResponse
+    {
+        [JsonPropertyName("data")]
+        public WeatherData Data { get; set; }
+
+        [JsonPropertyName("jsonapi")]
+        public JsonApi Jsonapi { get; set; }
+
+        [JsonPropertyName("meta")]
+        public Meta Meta { get; set; }
+    }
+
+    public class WeatherData
+    {
+        [JsonPropertyName("astro")]
+        public Astro Astro { get; set; }
+
+        [JsonPropertyName("icon")]
+        public Icon Icon { get; set; }
+
+        [JsonPropertyName("kind")]
+        public string Kind { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+
+        [JsonPropertyName("date")]
+        public DateInfo Date { get; set; }
+
+        [JsonPropertyName("city")]
+        public CityData City { get; set; }
+
+        [JsonPropertyName("wind")]
+        public Wind Wind { get; set; }
+
+        [JsonPropertyName("precipitation")]
+        public Precipitation Precipitation { get; set; }
+
+        [JsonPropertyName("temperature")]
+        public Temperature Temperature { get; set; }
+
+        [JsonPropertyName("storm")]
+        public Storm Storm { get; set; }
+
+        [JsonPropertyName("cloudiness")]
+        public Cloudiness Cloudiness { get; set; }
+
+        [JsonPropertyName("visibility")]
+        public Visibility Visibility { get; set; }
+
+        [JsonPropertyName("humidity")]
+        public Humidity Humidity { get; set; }
+
+        [JsonPropertyName("pressure")]
+        public Pressure Pressure { get; set; }
+    }
+
+    public class Astro
+    {
+        [JsonPropertyName("sun")]
+        public Sun Sun { get; set; }
+
+        [JsonPropertyName("moon")]
+        public Moon Moon { get; set; }
+    }
+
+    public class Sun
+    {
+        [JsonPropertyName("sunrise")]
+        public DateTime Sunrise { get; set; }
+
+        [JsonPropertyName("sunset")]
+        public DateTime Sunset { get; set; }
+
+        [JsonPropertyName("polar")]
+        public string Polar { get; set; }
+    }
+
+    public class Moon
+    {
+        [JsonPropertyName("next_full")]
+        public DateTime Next_full { get; set; }
+
+        [JsonPropertyName("previous_full")]
+        public DateTime Previous_full { get; set; }
+
+        [JsonPropertyName("phase")]
+        public string Phase { get; set; }
+
+        [JsonPropertyName("percent_illuminated")]
+        public double Percent_illuminated { get; set; }
+    }
+
+    public class Icon
+    {
+        [JsonPropertyName("icon-weather")]
+        public string IconWeather { get; set; }
+
+        [JsonPropertyName("emoji")]
+        public string Emoji { get; set; }
+    }
+
+    public class DateInfo
+    {
+        [JsonPropertyName("UTC")]
+        public DateTime UTC { get; set; }
+
+        [JsonPropertyName("local")]
+        public DateTime Local { get; set; }
+
+        [JsonPropertyName("unix")]
+        public long Unix { get; set; }
+
+        [JsonPropertyName("timeZoneOffset")]
+        public int TimeZoneOffset { get; set; }
+    }
+
+    public class CityData
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+
+        [JsonPropertyName("nameP")]
+        public string NameP { get; set; }
+
+        [JsonPropertyName("latitude")]
+        public double Latitude { get; set; }
+
+        [JsonPropertyName("longitude")]
+        public double Longitude { get; set; }
+    }
+
+    public class Wind
+    {
+        [JsonPropertyName("direction")]
+        public WindDirection Direction { get; set; }
+
+        [JsonPropertyName("speed")]
+        public WindSpeed Speed { get; set; }
+
+        [JsonPropertyName("gust_speed")]
+        public WindSpeed Gust_speed { get; set; }
+
+        [JsonPropertyName("alternate_direction")]
+        public bool Alternate_direction { get; set; }
+    }
+
+    public class WindDirection
+    {
+        [JsonPropertyName("degree")]
+        public int Degree { get; set; }
+
+        [JsonPropertyName("scale_8")]
+        public int Scale_8 { get; set; }
+    }
+
+    public class WindSpeed
+    {
+        [JsonPropertyName("m_s")]
+        public double M_s { get; set; }
+    }
+
+    public class Precipitation
+    {
+        [JsonPropertyName("type")]
+        public int Type { get; set; }
+
+        [JsonPropertyName("type_ext")]
+        public int Type_ext { get; set; }
+
+        [JsonPropertyName("amount")]
+        public double Amount { get; set; }
+
+        [JsonPropertyName("intensity")]
+        public int Intensity { get; set; }
+
+        [JsonPropertyName("duration")]
+        public int Duration { get; set; }
+    }
+
+    public class Temperature
+    {
+        [JsonPropertyName("air")]
+        public TemperatureValue Air { get; set; }
+
+        [JsonPropertyName("comfort")]
+        public TemperatureValue Comfort { get; set; }
+
+        [JsonPropertyName("water")]
+        public TemperatureValue Water { get; set; }
+    }
+
+    public class TemperatureValue
+    {
+        [JsonPropertyName("C")]
+        public double C { get; set; }
+    }
+
+    public class Storm
+    {
+        [JsonPropertyName("cape")]
+        public double Cape { get; set; }
+
+        [JsonPropertyName("prediction")]
+        public bool Prediction { get; set; }
+    }
+
+    public class Cloudiness
+    {
+        [JsonPropertyName("percent")]
+        public int Percent { get; set; }
+
+        [JsonPropertyName("scale_3")]
+        public int Scale_3 { get; set; }
+    }
+
+    public class Humidity
+    {
+        [JsonPropertyName("percent")]
+        public int Percent { get; set; }
+
+        [JsonPropertyName("dew_point")]
+        public TemperatureValue Dew_point { get; set; }
+    }
+
+    public class Pressure
+    {
+        [JsonPropertyName("mm_hg_atm")]
+        public int Mm_hg_atm { get; set; }
+    }
+
+    public class Visibility
+    {
+        [JsonPropertyName("horizontal")]
+        public VisibilityHorizontal Horizontal { get; set; }
+    }
+
+    public class VisibilityHorizontal
+    {
+        [JsonPropertyName("m")]
+        public double? M { get; set; }
+    }
+
+    public class JsonApi
+    {
+        [JsonPropertyName("version")]
+        public string Version { get; set; }
+    }
+
+    public class Meta
+    {
+        [JsonPropertyName("status")]
+        public bool Status { get; set; }
+
+        [JsonPropertyName("status_code")]
+        public int Status_code { get; set; }
+    }
+}
+
+<style>
+    .select-container {
+        margin-bottom: 20px;
+    }
+
+    .custom-select {
+        width: auto;
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .mt-2 {
+        margin-top: 10px;
+    }
+
+    .selected-region-info {
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-card {
+        background: #ffffff;
+        color: #1f2937;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 24px;
+        max-width: 480px;
+        margin: 16px 0 16px 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .bsp-meteo-weatherinfo h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-date {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-emoji {
+        font-size: 48px;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-main {
+        margin-top: 16px;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-temperature {
+        font-size: 36px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-description {
+        font-size: 18px;
+        color: #4b5563;
+        margin: 4px 0 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-feelslike {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 4px 0 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-water-temp {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 4px 0 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-details {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-label {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-value {
+        font-size: 16px;
+        font-weight: 500;
+        margin: 4px 0 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-subvalue {
+        font-size: 14px;
+        color: #6b7280;
+        margin: 4px 0 0;
+    }
+
+    .bsp-meteo-weatherinfo .bsp-meteo-astro,
+    .bsp-meteo-weatherinfo .bsp-meteo-moon {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin-top: 16px;
+        font-size: 14px;
+        color: #6b7280;
+    }
+
+        .bsp-meteo-weatherinfo .bsp-meteo-astro p,
+        .bsp-meteo-weatherinfo .bsp-meteo-moon p {
+            margin: 0;
+            flex: 1 1 50%;
+        }
+
+    .bsp-meteo-weatherinfo p {
+        margin: 0;
+    }
+</style>

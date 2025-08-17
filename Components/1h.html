@@ -1,0 +1,157 @@
+<div id="weather-info" class="weather-info">
+    <div class="card mt-4">
+        <div class="bsp-meteo-container">
+            <div class="bsp-meteo-header">
+                <h2 class="bsp-meteo-city">Москва</h2>
+                <p class="bsp-meteo-date">31 июля 2025</p>
+            </div>
+            <div class="bsp-meteo-forecast">
+                <div class="bsp-meteo-hourly">
+                    <div class="bsp-meteo-item">
+                        <span class="bsp-meteo-time">00:00</span>
+                        <span class="bsp-meteo-emoji">🌙</span>
+                        <span class="bsp-meteo-temp">23.9°C</span>
+                        <span class="bsp-meteo-desc">Ясно</span>
+                        <span class="bsp-meteo-wind">Ветер: 0.2 м/с, 40°</span>
+                    </div>
+                    <div class="bsp-meteo-item">
+                        <span class="bsp-meteo-time">01:00</span>
+                        <span class="bsp-meteo-emoji">🌙</span>
+                        <span class="bsp-meteo-temp">23.4°C</span>
+                        <span class="bsp-meteo-desc">Ясно</span>
+                        <span class="bsp-meteo-wind">Ветер: 0.2 м/с, 23°</span>
+                    </div>
+                    <div class="bsp-meteo-item">
+                        <span class="bsp-meteo-time">02:00</span>
+                        <span class="bsp-meteo-emoji">🌙</span>
+                        <span class="bsp-meteo-temp">23.0°C</span>
+                        <span class="bsp-meteo-desc">Ясно</span>
+                        <span class="bsp-meteo-wind">Ветер: 0.3 м/с, 37°</span>
+                    </div>
+                    <div class="bsp-meteo-item">
+                        <span class="bsp-meteo-time">03:00</span>
+                        <span class="bsp-meteo-emoji">🌙</span>
+                        <span class="bsp-meteo-temp">22.6°C</span>
+                        <span class="bsp-meteo-desc">Ясно</span>
+                        <span class="bsp-meteo-wind">Ветер: 0.4 м/с, 60°</span>
+                    </div>
+                    <div class="bsp-meteo-item">
+                        <span class="bsp-meteo-time">04:00</span>
+                        <span class="bsp-meteo-emoji">🌙</span>
+                        <span class="bsp-meteo-temp">22.5°C</span>
+                        <span class="bsp-meteo-desc">Ясно</span>
+                        <span class="bsp-meteo-wind">Ветер: 0.5 м/с, 52°</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bsp-meteo-footer">
+                <p>Восход: 04:32 | Закат: 20:37</p>
+                <p>Влажность: 59–65% | Давление: 745 мм рт. ст.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.weather-info {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 16px;
+}
+
+.bsp-meteo-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.bsp-meteo-header {
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.bsp-meteo-city {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.bsp-meteo-date {
+    font-size: 16px;
+    color: #666;
+    margin: 5px 0 0;
+}
+
+.bsp-meteo-forecast {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bsp-meteo-hourly {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.bsp-meteo-item {
+    background: #f8f8f8;
+    border-radius: 6px;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+}
+
+.bsp-meteo-time {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.bsp-meteo-emoji {
+    display: block;
+    font-size: 24px;
+    margin: 5px 0;
+}
+
+.bsp-meteo-temp {
+    display: block;
+    font-weight: 500;
+    color: #e74c3c;
+}
+
+.bsp-meteo-desc {
+    display: block;
+    font-size: 12px;
+    color: #555;
+}
+
+.bsp-meteo-wind {
+    display: block;
+    font-size: 12px;
+    color: #777;
+}
+
+.bsp-meteo-footer {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 10px;
+}
+
+.bsp-meteo-footer p {
+    margin: 5px 0;
+}
+</style>

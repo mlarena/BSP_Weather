@@ -1,0 +1,19 @@
+Возвращает текущую погоду по координатам
+http://localhost:5100/api/Weather/bsp_abcd?latitude=55.7558&longitude=37.617
+https://api.gismeteo.net/v3/weather/current/?latitude=55.7558&longitude=37.6173
+
+Возвращает прогноз погоды с шагом 1 час
+http://localhost:5100/api/Weather/bsp_efgh?latitude=55.7558&longitude=37.6173
+https://api.gismeteo.net/v3/weather/forecast/h1/?latitude=55.7558&longitude=37.6173 
+
+Возвращает прогноз погоды с шагом 3 часа
+http://localhost:5100/api/Weather/bsp_ijkl?latitude=55.7558&longitude=37.6173
+https://api.gismeteo.net/v3/weather/forecast/h3/?latitude=55.7558&longitude=37.6173
+
+Возвращает агрегированный прогноз погоды с шагом 6 часов
+http://localhost:5100/api/Weather/bsp_mnop?latitude=55.7558&longitude=37.6173
+https://api.gismeteo.net/v3/weather/forecast/h6/?latitude=55.7558&longitude=37.6173
+
+Возвращает агрегированный прогноз погоды с шагом 24 часа
+http://localhost:5100/api/Weather/bsp_qrst?latitude=55.7558&longitude=37.6173
+https://api.gismeteo.net/v3/weather/forecast/h24/?latitude=55.7558&longitude=37.6173

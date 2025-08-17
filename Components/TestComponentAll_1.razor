@@ -1,0 +1,367 @@
+@page "/testcomponentall"
+
+@using System.Net.Http.Json
+@using System.Text.Json.Serialization
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Configuration
+
+@inject HttpClient Http
+@inject IConfiguration Configuration
+
+<div class="weather-informer">
+    <div class="mode-selector">
+        <button class="@(selectedMode == "current" ? "active" : "")" @onclick="@(() => SelectMode("current"))">Сейчас</button>
+        <button class="@(selectedMode == "daily" ? "active" : "")" @onclick="@(() => SelectMode("daily"))">По дням</button>
+        <button class="@(selectedMode == "6hour" ? "active" : "")" @onclick="@(() => SelectMode("6hour"))">Каждые 6 часов</button>
+        <button class="@(selectedMode == "3hour" ? "active" : "")" @onclick="@(() => SelectMode("3hour"))">Каждые 3 часа</button>
+        <button class="@(selectedMode == "1hour" ? "active" : "")" @onclick="@(() => SelectMode("1hour"))">Каждый час</button>
+        <button class="@(displayMode == "informer" ? "active" : "")" @onclick="@(() => ToggleDisplayMode())">@(displayMode == "informer" ? "Таблица" : "Информер")</button>
+    </div>
+
+    @if (selectedMode == "current")
+    {
+        <div class="weather-content current-weather">
+            <h2>Погода сейчас</h2>
+            @if (displayMode == "informer")
+            {
+                <div class="weather-card">
+                    <p>Температура: --°C</p>
+                    <p>Влажность: --%</p>
+                    <p>Ветер: -- м/с</p>
+                    <p>Описание: --</p>
+                </div>
+            }
+            else
+            {
+                <table class="weather-table">
+                    <thead>
+                        <tr>
+                            <th>Температура</th>
+                            <th>Влажность</th>
+                            <th>Ветер</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>--°C</td>
+                            <td>--%</td>
+                            <td>-- м/с</td>
+                            <td>--</td>
+                        </tr>
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+    else if (selectedMode == "daily")
+    {
+        <div class="weather-content forecast-daily">
+            <h2>Прогноз на 10 дней (по дням)</h2>
+            @if (displayMode == "informer")
+            {
+                <div class="forecast-grid">
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                        <div class="weather-card">
+                            <p>День @i</p>
+                            <p>Температура: --°C</p>
+                            <p>Описание: --</p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <table class="weather-table">
+                    <thead>
+                        <tr>
+                            <th>День</th>
+                            <th>Температура</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            <tr>
+                                <td>День @i</td>
+                                <td>--°C</td>
+                                <td>--</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+    else if (selectedMode == "6hour")
+    {
+        <div class="weather-content forecast-6hour">
+            <h2>Прогноз на 10 дней (каждые 6 часов)</h2>
+            @if (displayMode == "informer")
+            {
+                <div class="forecast-grid">
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                        <div class="forecast-day">
+                            <h3>День @i</h3>
+                            @for (int j = 0; j < 4; j++)
+                            {
+                                <div class="weather-card">
+                                    <p>@(j * 6):00</p>
+                                    <p>Температура: --°C</p>
+                                    <p>Описание: --</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <table class="weather-table">
+                    <thead>
+                        <tr>
+                            <th>День</th>
+                            <th>Время</th>
+                            <th>Температура</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            @for (int j = 0; j < 4; j++)
+                            {
+                                <tr>
+                                    <td>День @i</td>
+                                    <td>@(j * 6):00</td>
+                                    <td>--°C</td>
+                                    <td>--</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+    else if (selectedMode == "3hour")
+    {
+        <div class="weather-content forecast-3hour">
+            <h2>Прогноз на 10 дней (каждые 3 часа)</h2>
+            @if (displayMode == "informer")
+            {
+                <div class="forecast-grid">
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                        <div class="forecast-day">
+                            <h3>День @i</h3>
+                            @for (int j = 0; j < 8; j++)
+                            {
+                                <div class="weather-card">
+                                    <p>@(j * 3):00</p>
+                                    <p>Температура: --°C</p>
+                                    <p>Описание: --</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <table class="weather-table">
+                    <thead>
+                        <tr>
+                            <th>День</th>
+                            <th>Время</th>
+                            <th>Температура</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            @for (int j = 0; j < 8; j++)
+                            {
+                                <tr>
+                                    <td>День @i</td>
+                                    <td>@(j * 3):00</td>
+                                    <td>--°C</td>
+                                    <td>--</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+    else if (selectedMode == "1hour")
+    {
+        <div class="weather-content forecast-1hour">
+            <h2>Прогноз на 10 дней (каждый час)</h2>
+            @if (displayMode == "informer")
+            {
+                <div class="forecast-grid">
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                        <div class="forecast-day">
+                            <h3>День @i</h3>
+                            @for (int j = 0; j < 24; j++)
+                            {
+                                <div class="weather-card">
+                                    <p>@j:00</p>
+                                    <p>Температура: --°C</p>
+                                    <p>Описание: --</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <table class="weather-table">
+                    <thead>
+                        <tr>
+                            <th>День</th>
+                            <th>Время</th>
+                            <th>Температура</th>
+                            <th>Описание</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            @for (int j = 0; j < 24; j++)
+                            {
+                                <tr>
+                                    <td>День @i</td>
+                                    <td>@j:00</td>
+                                    <td>--°C</td>
+                                    <td>--</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .weather-informer {
+        max-width: 1200px;
+        margin: 0;
+        padding: 20px;
+        font-family: Arial, sans-serif;
+    }
+
+    .mode-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+        .mode-selector button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+
+            .mode-selector button:hover {
+                background-color: #e0e0e0;
+            }
+
+            .mode-selector button.active {
+                background-color: #007bff;
+                color: white;
+            }
+
+    .weather-content {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+        .weather-content h2 {
+            margin: 0 0 20px;
+            font-size: 24px;
+        }
+
+    .weather-card {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 10px;
+        flex: 1;
+        min-width: 200px;
+        text-align: center;
+    }
+
+    .forecast-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .forecast-day {
+        flex: 1;
+        min-width: 250px;
+    }
+
+        .forecast-day h3 {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+    .weather-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+        .weather-table th,
+        .weather-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .weather-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .weather-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+</style>
+
+@code {
+    private string selectedMode = "current";
+    private string displayMode = "informer";
+
+    private void SelectMode(string mode)
+    {
+        selectedMode = mode;
+    }
+
+    private void ToggleDisplayMode()
+    {
+        displayMode = displayMode == "informer" ? "table" : "informer";
+    }
+}
