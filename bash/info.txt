@@ -1,1 +1,5 @@
-chmod +x create_folders.sh
+делаем все скрипты исполняемымы
+chmod +x make_scripts_executable.sh
+
+
+2. публикуем проект в 
