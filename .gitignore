@@ -1,0 +1,80 @@
+## Игнорировать файлы сборки и бинарные файлы
+bin/
+obj/
+
+## Файлы пакетов NuGet
+*.nupkg
+[Nn]u[Gg]et/
+*.nuget.props
+*.nuget.targets
+
+## Файлы пользовательских настроек и кэша
+*.user
+*.suo
+*.userprefs
+*.ionide
+.vs/
+
+## Результаты тестов
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## Файлы резервных копий и временные файлы
+*.[Cc]ache
+*.bak
+*.tmp
+*.swp
+*~.*
+
+## Файлы инструментов
+tools/
+
+## Файлы проекта Rider
+.idea/
+*.sln.iml
+
+## Файлы проекта VS Code
+.vscode/
+
+## Файлы проекта Azure Functions
+func-deploy/
+
+## Файлы проекта Docker
+docker-compose.*
+.dockerignore
+**/.docker/**
+**/docker-compose*/
+**/docker-compose.*
+**/.env
+
+## Файлы проекта Node.js (если есть фронтенд)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+## Файлы проекта Python (если используется)
+__pycache__/
+*.pyc
+
+## Файлы проекта Angular/React/Vue (если есть)
+dist/
+build/
+out/
+.cache/
+.serverless/
+
+## Файлы логов
+*.log
+logs/
+
+## Файлы системы контроля версий (если есть другие VCS)
+.svn/
+.hg/
+
+## Файлы macOS
+.DS_Store
+
+## Файлы Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
