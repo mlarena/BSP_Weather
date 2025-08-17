@@ -1,5 +1,8 @@
 делаем все скрипты исполняемымы
 chmod +x make_scripts_executable.sh
 
+install_curl.sh
+install_dependencies.sh
+install_unzip.sh
 
 2. публикуем проект в 

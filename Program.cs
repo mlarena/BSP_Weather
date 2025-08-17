@@ -79,7 +79,7 @@ app.Use(async (context, next) =>
 });
 
 app.UseCors("AllowAll");
-// app.UseHttpsRedirection(); // Отключено для тестирования
+//app.UseHttpsRedirection(); // Отключено для тестирования
 app.UseAuthorization();
 app.MapControllers();
 
