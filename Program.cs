@@ -6,9 +6,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 
-Console.WriteLine("Starting application configuration...");
-
 var builder = WebApplication.CreateBuilder(args);
+
+// Log configuration loading
+Console.WriteLine("Starting application configuration...");
+var configFilePath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
+Console.WriteLine($"Checking for appsettings.json at: {configFilePath}");
+Console.WriteLine($"appsettings.json exists: {File.Exists(configFilePath)}");
 
 Console.WriteLine("Configuring Serilog...");
 
@@ -30,6 +34,10 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+// Log Gismeteo token
+var gismeteoToken = builder.Configuration["Gismeteo:Token"];
+Log.Information($"Gismeteo Token: {(string.IsNullOrEmpty(gismeteoToken) ? "Not found" : "Found")}");
+
 Console.WriteLine("Adding services...");
 
 // Add CORS policy
@@ -48,14 +56,9 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "BSP_Weather API", Version = "v1" });
+    Log.Information("SwaggerGen configured for v1");
 });
 builder.Services.AddSingleton<GismeteoService>();
-
-// Configure HTTPS redirection (commented out for testing)
-// builder.Services.AddHttpsRedirection(options =>
-// {
-//     options.HttpsPort = 5101;
-// });
 
 Console.WriteLine("Building application...");
 
@@ -63,8 +66,18 @@ var app = builder.Build();
 
 Console.WriteLine("Configuring middleware pipeline...");
 
-app.UseSwagger();
-app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BSP_Weather API v1"));
+// Configure Swagger
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "swagger/{documentName}/swagger.json";
+    Log.Information("Swagger middleware configured with RouteTemplate: {RouteTemplate}", c.RouteTemplate);
+});
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BSP_Weather API v1");
+    c.RoutePrefix = "swagger";
+    Log.Information("Swagger UI configured with RoutePrefix: {RoutePrefix}", c.RoutePrefix);
+});
 
 app.Use(async (context, next) =>
 {
@@ -80,15 +93,15 @@ app.Use(async (context, next) =>
 });
 
 app.UseCors("AllowAll");
-// app.UseHttpsRedirection(); // Disabled for testing
 app.UseAuthorization();
 app.MapControllers();
 
-Console.WriteLine("Starting application...");
 Log.Information("Application is starting...");
+Console.WriteLine("Starting application...");
 
 try
 {
+    Log.Information("Test log entry to verify file logging");
     app.Run();
 }
 catch (Exception ex)

@@ -8,13 +8,25 @@ SERVICE_NAME="bsp_weather"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 NGINX_CONFIG_FILE="/etc/nginx/sites-available/${SERVICE_NAME}"
 APP_DLL="BSP_Weather.dll"
+APPSETTINGS_FILE="appsettings.json"
 DOMAIN_OR_IP="localhost"
 PORT="5000"
 
 # Exit on any error
 set -e
 
-# 1. Clean and publish the application
+# 1. Check dependencies
+echo "Checking for required dependencies..."
+if ! command -v dotnet >/dev/null 2>&1; then
+    echo "Error: .NET SDK is not installed. Please install it."
+    exit 1
+fi
+if ! dpkg -l | grep -q aspnetcore-runtime; then
+    echo "Error: ASP.NET Core runtime is not installed. Install it with: sudo apt-get install -y aspnetcore-runtime-8.0"
+    exit 1
+fi
+
+# 2. Clean and publish the application
 echo "Cleaning and publishing .NET application..."
 if [ -d "$PUBLISH_OUTPUT_DIR" ]; then
     echo "Removing existing publish directory: $PUBLISH_OUTPUT_DIR"
@@ -37,15 +49,29 @@ if [ ! -f "$PUBLISH_OUTPUT_DIR/$APP_DLL" ]; then
     exit 1
 fi
 
-echo "Application published to $PUBLISH_OUTPUT_DIR"
+# Ensure appsettings.json is copied
+if [ -f "$PROJECT_SOLUTION_DIR/$APPSETTINGS_FILE" ]; then
+    echo "Copying $APPSETTINGS_FILE to $PUBLISH_OUTPUT_DIR"
+    cp "$PROJECT_SOLUTION_DIR/$APPSETTINGS_FILE" "$PUBLISH_OUTPUT_DIR/$APPSETTINGS_FILE"
+else
+    echo "Error: $APPSETTINGS_FILE not found in $PROJECT_SOLUTION_DIR"
+    exit 1
+fi
 
-# 2. Set permissions for publish and logs directories
-echo "Setting permissions for $PUBLISH_OUTPUT_DIR and $LOGS_DIR..."
+# 3. Set permissions
+echo "Setting permissions for $PUBLISH_OUTPUT_DIR, $LOGS_DIR, and $APPSETTINGS_FILE..."
 sudo chown -R www-data:www-data "$PUBLISH_OUTPUT_DIR"
 sudo chmod -R 755 "$PUBLISH_OUTPUT_DIR"
 sudo chmod -R 775 "$LOGS_DIR"
+sudo chmod 644 "$PUBLISH_OUTPUT_DIR/$APPSETTINGS_FILE"
 
-# 3. Create systemd service
+# Verify permissions
+echo "Verifying permissions for $LOGS_DIR..."
+ls -ld "$LOGS_DIR"
+echo "Verifying permissions for $APPSETTINGS_FILE..."
+到来
+
+# 4. Create systemd service
 echo "Creating systemd service..."
 sudo tee "$SERVICE_FILE" > /dev/null <<EOF
 [Unit]
@@ -71,7 +97,7 @@ EOF
 sudo chmod 644 "$SERVICE_FILE"
 sudo systemctl daemon-reload
 sudo systemctl enable "$SERVICE_NAME"
-sudo systemctl start "$SERVICE_NAME"
+sudo systemctl restart "$SERVICE_NAME"
 
 if [ $? -ne 0 ]; then
     echo "Error: Failed to start $SERVICE_NAME service"
@@ -82,17 +108,17 @@ fi
 # Wait briefly to allow the service to start
 sleep 5
 
-# 4. Verify application is running
+# 5. Verify application is running
 echo "Checking if application is responding on port $PORT..."
-if curl -s http://localhost:$PORT/swagger >/dev/null; then
-    echo "Application is responding at http://localhost:$PORT/swagger"
+if curl -s http://localhost:$PORT/swagger/v1/swagger.json >/dev/null; then
+    echo "Application is responding at http://localhost:$PORT/swagger/v1/swagger.json"
 else
-    echo "Error: Application is not responding at http://localhost:$PORT/swagger"
+    echo "Error: Application is not responding at http://localhost:$PORT/swagger/v1/swagger.json"
     sudo journalctl -u "$SERVICE_NAME" -n 50
     exit 1
 fi
 
-# 5. Create Nginx configuration
+# 6. Create Nginx configuration
 echo "Creating Nginx configuration..."
 sudo tee "$NGINX_CONFIG_FILE" > /dev/null <<'NGINX_CONFIG'
 server {
@@ -112,9 +138,9 @@ server {
 }
 NGINX_CONFIG
 
-# 6. Activate Nginx configuration
+# 7. Activate Nginx configuration
 sudo ln -sf "$NGINX_CONFIG_FILE" "/etc/nginx/sites-enabled/"
-[ -f "/etc/nginx/sites-enabled/default" ] && sudo rm -f "/etc/nginx/sites-enabled/default"
+[ -f "/etc/lowercase nginx/sites-enabled/default" ] && sudo rm -f "/etc/nginx/sites-enabled/default"
 
 # Check Nginx configuration
 if ! sudo nginx -t; then
@@ -132,27 +158,37 @@ if [ $? -ne 0 ]; then
 fi
 echo "Nginx configuration successfully activated"
 
-# 7. Verify Nginx is serving the application
-echo "Checking if Swagger is accessible via Nginx..."
+# 8. Verify Nginx is serving the application
+echo "Checking if Swagger UI is accessible via Nginx..."
 if curl -s http://$DOMAIN_OR_IP/swagger >/dev/null; then
     echo "Swagger UI is accessible at http://$DOMAIN_OR_IP/swagger"
 else
     echo "Error: Swagger UI is not accessible at http://$DOMAIN_OR_IP/swagger"
     sudo tail -n 50 /var/log/nginx/error.log
+    sudo journalctl -u "$SERVICE_NAME" -n 50
     exit 1
 fi
 
-# 8. Verify logs directory
+# 9. Verify logs directory
 echo "Checking logs directory: $LOGS_DIR"
 if [ -z "$(ls -A $LOGS_DIR)" ]; then
     echo "Warning: Logs directory is empty. Check application logs in journalctl:"
     sudo journalctl -u "$SERVICE_NAME" -n 50
+    echo "Attempting to test log file creation..."
+    sudo -u www-data touch "$LOGS_DIR/test.log"
+    if [ $? -eq 0 ]; then
+        echo "Test log file created successfully by www-data"
+        rm "$LOGS_DIR/test.log"
+    else
+        echo "Error: www-data cannot write to $LOGS_DIR"
+        exit 1
+    fi
 else
     echo "Logs found in $LOGS_DIR:"
     ls -l "$LOGS_DIR"
 fi
 
-# 9. Display service statuses
+# 10. Display service statuses
 echo -e "\nService status:"
 sudo systemctl status "$SERVICE_NAME" --no-pager || true
 
