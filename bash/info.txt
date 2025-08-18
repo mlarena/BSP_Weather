@@ -1,9 +1,16 @@
+mkdir burstroy
+mkdir temp_project - сюда копируем все решение
 
 делаем все скрипты исполняемымы
 chmod +x make_scripts_executable.sh
 
+запускать в слудующем порядке
 install_curl.sh
 install_dependencies.sh
 install_unzip.sh
+install_dotnet.sh
+install_nginx.sh
 
-2. публикуем проект в 
+скрипт все сделает
+deploy_api_10001_port.sh
+
