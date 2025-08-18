@@ -1,3 +1,4 @@
+
 делаем все скрипты исполняемымы
 chmod +x make_scripts_executable.sh
 

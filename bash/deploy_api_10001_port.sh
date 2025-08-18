@@ -7,7 +7,9 @@ PUBLISH_OUTPUT_DIR="/burstroy/BSP_Weather"
 LOGS_DIR="$PUBLISH_OUTPUT_DIR/logs"
 SERVICE_NAME="bsp_weather"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
-NGINX_CONFIG_FILE="/etc/nginx/sites-available/${SERVICE_NAME}"
+NGINX_SITES_AVAILABLE="/etc/nginx/sites-available"
+NGINX_CONFIG_FILE="$NGINX_SITES_AVAILABLE/${SERVICE_NAME}"
+NGINX_SITES_ENABLED="/etc/nginx/sites-enabled"
 APP_DLL="BSP_Weather.dll"
 APPSETTINGS_FILE="appsettings.json"
 DOMAIN_OR_IP="localhost"
@@ -26,6 +28,10 @@ if ! dpkg -l | grep -q aspnetcore-runtime; then
     echo "Error: ASP.NET Core runtime is not installed. Install it with: sudo apt-get install -y aspnetcore-runtime-9.0"
     exit 1
 fi
+if ! command -v nginx >/dev/null 2>&1; then
+    echo "Error: Nginx is not installed. Install it with: sudo apt-get install -y nginx"
+    exit 1
+fi
 
 # 2. Clean and publish the application
 echo "Cleaning and publishing .NET application..."
@@ -42,12 +48,15 @@ if [ ! -f "$PROJECT_FILE" ]; then
 fi
 
 cd "$PROJECT_SOLUTION_DIR" || { echo "Error: Cannot access $PROJECT_SOLUTION_DIR"; exit 1; }
-dotnet publish "$PROJECT_FILE" -c Release -o "$PUBLISH_OUTPUT_DIR"
+echo "Running dotnet publish with verbose output..."
+dotnet publish "$PROJECT_FILE" -c Release -o "$PUBLISH_OUTPUT_DIR" --verbosity normal > publish.log 2>&1
 
 if [ $? -ne 0 ]; then
     echo "Error: dotnet publish failed"
+    cat publish.log
     exit 1
 fi
+echo "Publish completed. Check publish.log for warnings."
 
 # Verify DLL exists
 if [ ! -f "$PUBLISH_OUTPUT_DIR/$APP_DLL" ]; then
@@ -129,6 +138,12 @@ fi
 
 # 6. Create Nginx configuration
 echo "Creating Nginx configuration..."
+# Ensure sites-available and sites-enabled directories exist
+sudo mkdir -p "$NGINX_SITES_AVAILABLE"
+sudo mkdir -p "$NGINX_SITES_ENABLED"
+sudo chown root:root "$NGINX_SITES_AVAILABLE" "$NGINX_SITES_ENABLED"
+sudo chmod 755 "$NGINX_SITES_AVAILABLE" "$NGINX_SITES_ENABLED"
+
 sudo tee "$NGINX_CONFIG_FILE" > /dev/null <<'NGINX_CONFIG'
 server {
     listen 10001;
@@ -148,8 +163,8 @@ server {
 NGINX_CONFIG
 
 # 7. Activate Nginx configuration
-sudo ln -sf "$NGINX_CONFIG_FILE" "/etc/nginx/sites-enabled/"
-[ -f "/etc/nginx/sites-enabled/default" ] && sudo rm -f "/etc/nginx/sites-enabled/default"
+sudo ln -sf "$NGINX_CONFIG_FILE" "$NGINX_SITES_ENABLED/$SERVICE_NAME"
+[ -f "$NGINX_SITES_ENABLED/default" ] && sudo rm -f "$NGINX_SITES_ENABLED/default"
 
 # Check Nginx configuration
 if ! sudo nginx -t; then
