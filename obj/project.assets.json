@@ -1529,11 +1529,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\git\\BSP_Weather\\BSP_Weather.csproj",
+      "projectUniqueName": "C:\\_dotnet\\BSP_Weather\\BSP_Weather.csproj",
       "projectName": "BSP_Weather",
-      "projectPath": "C:\\git\\BSP_Weather\\BSP_Weather.csproj",
+      "projectPath": "C:\\_dotnet\\BSP_Weather\\BSP_Weather.csproj",
       "packagesPath": "C:\\Users\\I\\.nuget\\packages\\",
-      "outputPath": "C:\\git\\BSP_Weather\\obj\\",
+      "outputPath": "C:\\_dotnet\\BSP_Weather\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

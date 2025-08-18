@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ERySr9atMlQ=",
+  "dgSpecHash": "gmgSCqXc3CU=",
   "success": true,
-  "projectFilePath": "C:\\git\\BSP_Weather\\BSP_Weather.csproj",
+  "projectFilePath": "C:\\_dotnet\\BSP_Weather\\BSP_Weather.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\I\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.7\\microsoft.aspnetcore.openapi.9.0.7.nupkg.sha512",
     "C:\\Users\\I\\.nuget\\packages\\microsoft.extensions.apidescription.server\\9.0.0\\microsoft.extensions.apidescription.server.9.0.0.nupkg.sha512",
